@@ -35,61 +35,50 @@ public class ApplicationUserServiceTest
     }
 
     @Test
-    public void saveTest()
+    public void checkValidatorNewUsersTest()
     {
-        ApplicationUser applicationUser = new ApplicationUser(  );
-        Assert.assertFalse( applicationUserService.save( applicationUser ) );
+        int userNumber = applicationUserService.findAll().size();
+        ApplicationUser user_incorrect1 = new ApplicationUser(  );
 
-        applicationUser.setUsername( USERNAME_INCORRECT );
-        applicationUser.setPassword( PASSWORD_INCORRECT );
-        Assert.assertFalse( applicationUserService.save( applicationUser ) );
+        ApplicationUser user_incorrect2 = new ApplicationUser(  );
+        user_incorrect2.setUsername( USERNAME_INCORRECT );
+        user_incorrect2.setPassword( PASSWORD_CORRENT );
 
-        applicationUser.setUsername( USERNAME_CORRECT_1 );
-        Assert.assertFalse( applicationUserService.save( applicationUser ) );
+        ApplicationUser user_incorrect3 = new ApplicationUser(  );
+        user_incorrect3.setUsername( USERNAME_CORRECT_1 );
+        user_incorrect3.setPassword( PASSWORD_INCORRECT );
 
-        applicationUser.setUsername( USERNAME_INCORRECT );
-        applicationUser.setPassword( PASSWORD_CORRENT );
-        Assert.assertFalse( applicationUserService.save( applicationUser ) );
+        ApplicationUser user_correct = new ApplicationUser(  );
+        user_correct.setUsername( USERNAME_CORRECT_1 );
+        user_correct.setPassword( PASSWORD_CORRENT );
 
-        applicationUser.setUsername( USERNAME_CORRECT_1 );
-        Assert.assertTrue( applicationUserService.save( applicationUser ) );
-        Assert.assertFalse( applicationUserService.save( applicationUser ) );
 
-        ApplicationUserConfidential applicationUserConfidential = applicationUserService.findById( 1L );
-        Assert.assertNotNull( applicationUserConfidential.getId() );
-        Assert.assertEquals( applicationUserConfidential.getId(), new Long(1) );
-        Assert.assertEquals( applicationUserConfidential.getUsername(), USERNAME_CORRECT_1 );
+        Assert.assertFalse( applicationUserService.save( user_incorrect1 ) );
+        Assert.assertFalse( applicationUserService.save( user_incorrect2 ) );
+        Assert.assertFalse( applicationUserService.save( user_incorrect3 ) );
+        Assert.assertTrue( applicationUserService.save( user_correct ) );
+        Assert.assertFalse( applicationUserService.save( user_correct ) );
 
+
+        Assert.assertNotNull( applicationUserService.findByUsername( user_correct.getUsername() ) );
+        Assert.assertEquals( applicationUserService.findAll().size(), userNumber + 1 );
     }
 
     @Test
-    public void findByUsernameTest()
+    public void checkSavingDatasTest()
     {
-        ApplicationUser applicationUser = new ApplicationUser(  );
+        int userNumber = applicationUserService.findAll().size();
+        ApplicationUser user = new ApplicationUser(  );
+        user.setUsername( USERNAME_CORRECT_2 );
+        user.setPassword( PASSWORD_CORRENT );
 
-        applicationUser.setUsername( USERNAME_CORRECT_2 );
-        applicationUser.setPassword( PASSWORD_CORRENT );
 
-        Assert.assertTrue( applicationUserService.save( applicationUser ) );
+        Assert.assertTrue( applicationUserService.save( user ) );
 
-        ApplicationUserConfidential applicationUserConfidential = applicationUserService.findByUsername( applicationUser.getUsername() );
 
-        Assert.assertNotNull( applicationUserConfidential.getId() );
-        Assert.assertNotEquals( applicationUserConfidential.getId(), new Long(1) );
-        Assert.assertEquals( applicationUser.getUsername(), applicationUserConfidential.getUsername() );
-    }
-
-    @Test
-    public void findAllTest()
-    {
-        List<ApplicationUserConfidential> applicationUserConfidentialList = new ArrayList<>(  );
-        applicationUserConfidentialList.add( new ApplicationUserConfidential( 1L, USERNAME_CORRECT_1 ) );
-        applicationUserConfidentialList.add( new ApplicationUserConfidential( 2L, USERNAME_CORRECT_2 ) );
-
-        List<ApplicationUserConfidential> applicationUserConfidentialListFromRepo;
-        applicationUserConfidentialListFromRepo = applicationUserService.findAll();
-
-        Assert.assertEquals( applicationUserConfidentialList.get( 0 ), applicationUserConfidentialListFromRepo.get( 0 ) );
-        Assert.assertEquals( applicationUserConfidentialList.get(1), applicationUserConfidentialListFromRepo.get( 1 ) );
+        ApplicationUserConfidential applicationUserConfidential = applicationUserService.findByUsername( user.getUsername() );
+        Assert.assertNotNull( applicationUserConfidential );
+        Assert.assertEquals( applicationUserConfidential.getUsername(), user.getUsername() );
+        Assert.assertEquals( applicationUserConfidential.getId(), new Long( userNumber + 1 ) );
     }
 }
